@@ -1,8 +1,12 @@
+#!/usr/bin/python
+
 import Image
+import ImageFilter
 import numpy
 import os
 import math
 import itertools
+import classifier
 from optparse import OptionParser
 
 
@@ -62,21 +66,33 @@ def nearest_power(n):
     return power >> 1
 
 def weird_map(char):
-    val = ord(char)
-    return ((val >> 4) * 16,val ,(val % 16)*16)
+    val = char
+    return ((val >> 4) * 16,val ,(val & 15)*16)
+
+def weird_topbit(char):
+    val = char
+    return (max((val >> 7) * 255, val >> 4), val, (val & 15)*16)
 
 def luminosity_map(char):
-    val = ord(char)
+    val = char
     return (val, val, val)
 
 def mod2(char):
-    val = (ord(char) % 2) * 255
+    val = (char % 2) * 255
     return (val, val, val)
 
+def colors(char):
+    green = char &   0b11100000
+    red = char & 0b00011100
+    blue = char &  0b00000011
+    return (red, green, blue)
+
 map_table = {
-    'weird': weird_map,
+    'weird': weird_topbit,
+    'weird_old': weird_map,
     'luminosity': luminosity_map,
-    'mod2': mod2
+    'mod2': mod2,
+    'colors': colors
 }
 
 def mask(data, start, end, maskval):
@@ -99,7 +115,6 @@ def main():
     parser.add_option('-m', '--mapping', dest='mapping', default='weird')
     
     options, args = parser.parse_args()
-
     file_size = os.path.getsize(options.file)
     sizen = None
     data_length = options.len or file_size - options.offset
@@ -113,8 +128,11 @@ def main():
         sizen = options.size
 
     if sizen <= 64 and options.scale == -1:
-        print "Image is going to be small, setting scale to 8"
+        print "Image is going to be very small, setting scale to 8"
         options.scale = 8
+    elif sizen <= 256 and options.scale == -1:
+        print "Image is going to be small, setting scale to 3"
+        options.scale = 3
     img = Image.new("RGB", (sizen, sizen))
 
     data_to_be_shown = min(sizen ** 2, data_length)
@@ -123,12 +141,12 @@ def main():
 
     f = open(options.file, 'r')
     f.seek(options.offset)
-    data = f.read(options.len or sizen**2)
-    #data = bytearray(data)
+    data = bytearray(f.read(options.len or sizen**2))
     if options.mask:
         data = mask(data, options.mask[0], options.mask[1], options.mask[2])
     mapper = map_table[options.mapping]
-    
+
+    mapper = classifier.makeFreqMapper(data)
     print "Done reading"
     for i in range(len(data)):
         if i > sizen**2 - 1:
@@ -137,15 +155,17 @@ def main():
 
         if i % 100000 == 0:
             print "Processed %s bytes (%s)" % (i, i * 1.0 / len(data))
-        val = ord(data[i])
+
+        color = mapper(data[i])
+        if color == (0,0,0): #Optimize for black
+            continue
         pos = d2xy(sizen, i)
-        img.putpixel(pos, mapper(data[i]))
+        img.putpixel(pos, color)
 
     print "Showing"
     if options.scale > 1:
         img = img.resize((sizen * options.scale, sizen * options.scale))
     img.show()
     
-
 if __name__ == "__main__":
     main()
