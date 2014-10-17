@@ -4,6 +4,7 @@ import Image
 import ImageFilter
 import numpy
 import os
+import time
 import math
 import itertools
 import colormaps
@@ -12,6 +13,12 @@ from optparse import OptionParser
 
 def cbool(tf):
     return 1 if tf else 0
+
+def nearest_power(n):
+    power = 1
+    while power < n:
+        power <<= 1
+    return power >> 1
 
 def xy2d(n, x, y):
     rx = 0
@@ -82,7 +89,11 @@ def main():
     
     print "Done reading"
 
+    start_time = time.clock()
     img = View.View(data, mapper, size = sizen).gen_image()
+    stop_time = time.clock()
+
+    print "Time {}".format(stop_time-start_time)
 
     print "Showing"
     if options.scale > 1:
