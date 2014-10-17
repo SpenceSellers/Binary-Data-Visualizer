@@ -90,7 +90,7 @@ class View(object):
     
     def gen_image(self):
         img = Image.new("RGB", (self.size, self.size), color=self.default_color)
-        
+        pixels = img.load()
         for i in range(len(self.data)):
             if i > self.size**2 - 1:
                 print "Not all data has been displayed."
@@ -105,7 +105,7 @@ class View(object):
             
             pos = self.get_pos(i)
             
-            img.putpixel(pos, color)
+            pixels[pos[0], pos[1]] =  color
 
         return img
         
