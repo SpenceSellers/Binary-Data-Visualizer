@@ -28,6 +28,10 @@ class Positioner(object):
         else:
             self.gen_map(size)
             return self.get(size, i)
+
+    def convert(self, size, xy):
+        x, y = xy
+        return y * size + x
             
 positioner = Positioner() # Make a global positioner singleton for efficiency.
 
@@ -55,23 +59,16 @@ def d2xy(n, d):
     while (s < n):
         rx = 1 & (t >> 1)
         ry = 1 & (t ^ rx)
-        x, y = rot(s, x, y, rx, ry)
+        if ry == 0:
+            if rx == 1:
+                x = s - 1 - x
+                y = s - 1 - y
         x += s * rx
         y += s * ry
         t >>= 2
         s <<= 1
-    return x, y
+    return y * n + x
 
-def rot(n, x, y, rx, ry):
-    """
-    rotate/flip a quadrant appropriately
-    """
-    if ry == 0:
-        if rx == 1:
-            x = n - 1 - x
-            y = n - 1 - y
-        return y, x
-    return x, y
 
 class View(object):
     def __init__(self, data, mapper_constructor, size = None):
@@ -90,7 +87,7 @@ class View(object):
     
     def gen_image(self):
         img = Image.new("RGB", (self.size, self.size), color=self.default_color)
-        pixels = img.load()
+        pixels = list(img.getdata())
         for i in range(len(self.data)):
             if i > self.size**2 - 1:
                 print "Not all data has been displayed."
@@ -105,7 +102,8 @@ class View(object):
             
             pos = self.get_pos(i)
             
-            pixels[pos[0], pos[1]] =  color
+            pixels[pos] =  color
+        img.putdata(pixels)
 
         return img
         
