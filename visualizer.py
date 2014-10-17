@@ -87,7 +87,11 @@ def main():
     parser.add_option('-m', '--mapping', dest='mapping', default='Weird')
     
     options, args = parser.parse_args()
-    file_size = os.path.getsize(options.file)
+
+    filename = options.file if options.file else args[0]
+    print options.file
+    
+    file_size = os.path.getsize(filename)
     sizen = None
     data_length = options.len or file_size - options.offset
     if options.size <= 0:
@@ -111,7 +115,7 @@ def main():
     print "Showing {0} of {1} bytes, ({2} %)"\
         .format(data_to_be_shown, data_length, (data_to_be_shown * 100.0/data_length))
 
-    f = open(options.file, 'r')
+    f = open(filename, 'r')
     f.seek(options.offset)
     data = bytearray(f.read(options.len or sizen**2))
     if options.mask:
