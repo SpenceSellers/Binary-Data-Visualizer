@@ -6,7 +6,7 @@ import numpy
 import os
 import math
 import itertools
-import classifier
+import colormaps
 from optparse import OptionParser
 
 
@@ -65,35 +65,7 @@ def nearest_power(n):
         power <<= 1
     return power >> 1
 
-def weird_map(char):
-    val = char
-    return ((val >> 4) * 16,val ,(val & 15)*16)
 
-def weird_topbit(char):
-    val = char
-    return (max((val >> 7) * 255, val >> 4), val, (val & 15)*16)
-
-def luminosity_map(char):
-    val = char
-    return (val, val, val)
-
-def mod2(char):
-    val = (char % 2) * 255
-    return (val, val, val)
-
-def colors(char):
-    green = char &   0b11100000
-    red = char & 0b00011100
-    blue = char &  0b00000011
-    return (red, green, blue)
-
-map_table = {
-    'weird': weird_topbit,
-    'weird_old': weird_map,
-    'luminosity': luminosity_map,
-    'mod2': mod2,
-    'colors': colors
-}
 
 def mask(data, start, end, maskval):
     for i in itertools.chain(range(0, start), range(end, len(data))):
@@ -112,7 +84,7 @@ def main():
     parser.add_option('--offset', '-o', type='int', dest='offset', default=0)
     parser.add_option('--mask', type='int', nargs=3)
     parser.add_option('--scale', type='int', dest='scale', default = -1)
-    parser.add_option('-m', '--mapping', dest='mapping', default='weird')
+    parser.add_option('-m', '--mapping', dest='mapping', default='Weird')
     
     options, args = parser.parse_args()
     file_size = os.path.getsize(options.file)
@@ -144,9 +116,9 @@ def main():
     data = bytearray(f.read(options.len or sizen**2))
     if options.mask:
         data = mask(data, options.mask[0], options.mask[1], options.mask[2])
-    mapper = map_table[options.mapping]
+    mapper = colormaps.__dict__[options.mapping](data)
 
-    mapper = classifier.makeFreqMapper(data)
+    
     print "Done reading"
     for i in range(len(data)):
         if i > sizen**2 - 1:
@@ -156,7 +128,7 @@ def main():
         if i % 100000 == 0:
             print "Processed %s bytes (%s)" % (i, i * 1.0 / len(data))
 
-        color = mapper(data[i])
+        color = mapper.color(i)
         if color == (0,0,0): #Optimize for black
             continue
         pos = d2xy(sizen, i)

@@ -29,6 +29,7 @@ def makeFreqMapper(data):
     def mapper(byte):
         count = counts[byte]
         val = scale(count, src_range, dest_range)
+        val = 255 - val
         return (val, val, val)
 
     return mapper
