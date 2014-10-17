@@ -1,5 +1,7 @@
 import Image
-
+import functools
+import memoize
+import ccode
 globalMap = None
 
 class Positioner(object):
@@ -12,6 +14,7 @@ class Positioner(object):
         else:
             self.gen_map(size)
             return self.get_map_for_size(size)
+        
     def gen_map(self, size):
         if self.sizes.has_key(size):
             return
@@ -46,29 +49,8 @@ def mask(data, start, end, maskval):
         data[i] = maskval
     return data
 
-# Thanks to github user dentearl for the original d2xy code
 def d2xy(n, d):
-    """
-    take a d value in [0, n**2 - 1] and map it to
-    an x, y value (e.g. c, r).
-    """
-    #assert(d <= n**2 - 1)
-    t = d
-    x = y = 0
-    s = 1
-    while (s < n):
-        rx = 1 & (t >> 1)
-        ry = 1 & (t ^ rx)
-        if ry == 0:
-            if rx == 1:
-                x = s - 1 - x
-                y = s - 1 - y
-        x += s * rx
-        y += s * ry
-        t >>= 2
-        s <<= 1
-    return y * n + x
-
+    return ccode.d2xy(n, d)
 
 class View(object):
     def __init__(self, data, mapper_constructor, size = None):
