@@ -1,6 +1,5 @@
 import Image
 import functools
-import memoize
 import ccode
 
 def nearest_power(n):
