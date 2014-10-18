@@ -1,5 +1,10 @@
 import classifier
 import ccode
+import numpy
+
+def scale(val, input_scale):
+    return int(numpy.interp(val, input_scale, [0,255]))
+
 class ColorMap(object):
     def __init__(self, data):
         self.data = data
@@ -10,7 +15,7 @@ class ColorMap(object):
     def predictDefault(self):
         return (0,0,0)
 
-    def greyscale(self, val):
+    def grayscale(self, val):
         return (val, val, val)
     
     def getByteOrElse(self, index, elseval):
@@ -40,12 +45,12 @@ class ColorMap(object):
 
 class Luminosity(ColorMap):
     def colorVal(self, val):
-        return self.greyscale(val)
+        return self.grayscale(val)
 
 class Mod2(ColorMap):
     def colorVal(self, val):
         val = (val % 2) * 255
-        return self.greyscale(val)
+        return self.grayscale(val)
 
 class WeirdOld(ColorMap):
     def colorVal(self, val):
@@ -79,4 +84,12 @@ class AverageWeird(ColorMap):
                   self.getByteOrElse(index, 1)]
         color = self.average(colors)
 
-        
+
+class Popcount(ColorMap):
+    def colorVal(self, val):
+        accum = 0;
+        for i in range(8):
+            mask = 1 << i
+            if (val & mask):
+                accum += 1
+        return self.grayscale(scale(accum, [0,8]))
