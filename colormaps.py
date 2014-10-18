@@ -1,5 +1,5 @@
 import classifier
-
+import ccode
 class ColorMap(object):
     def __init__(self, data):
         self.data = data
@@ -18,7 +18,6 @@ class ColorMap(object):
             return elseval
         else:
             return getByte(index)
-        
     def color(self, index):
         return self.colorVal(self.getByte(index))
         
@@ -54,7 +53,8 @@ class WeirdOld(ColorMap):
 
 class Weird(ColorMap):
     def colorVal(self, val):
-        return (max((val >> 7) * 255, val >> 4), val, (val & 15)*16)
+        return ccode.weirdMap(val)
+        #return (max((val >> 7) * 255, val >> 4), val, (val & 15)*16)
 
 
 class BitColors(ColorMap):

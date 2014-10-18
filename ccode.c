@@ -5,7 +5,14 @@ static PyObject* py_myFunction(PyObject* self, PyObject* args)
     return Py_BuildValue("s", s);
 }
 
-    
+unsigned char maxChar(unsigned char a, unsigned char b){
+    if (a > b){
+        return a;
+    } else {
+        return b;
+    }
+}
+
 int d2xy(int n, int d){
     int t = d;
     int x = 0;
@@ -40,6 +47,18 @@ static PyObject* py_d2xy(PyObject* self, PyObject* args){
     return Py_BuildValue("b", result);
 }
 
+static PyObject* py_weirdMap(PyObject* self, PyObject* args){
+    unsigned char val;
+    PyArg_ParseTuple(args, "b", &val);
+
+    unsigned char red = maxChar((val >> 7) * 255, val >> 4);
+    unsigned char green = val;
+    unsigned char blue = (val & 15) * 16;
+    
+    PyObject *t = Py_BuildValue("(bbb)", red, green, blue);
+
+    return t;
+}
 
 /*
  * Bind Python function names to our C functions
@@ -47,6 +66,7 @@ static PyObject* py_d2xy(PyObject* self, PyObject* args){
 static PyMethodDef ccode_methods[] = {
     {"myFunction", py_myFunction, METH_VARARGS},
     {"d2xy", py_d2xy, METH_VARARGS},
+    {"weirdMap", py_weirdMap, METH_VARARGS},
     //{"myOtherFunction", py_myOtherFunction, METH_VARARGS},
     {NULL, NULL}
 };
