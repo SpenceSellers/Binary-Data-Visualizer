@@ -22,7 +22,13 @@ class ColorMap(object):
         if index < 0 or index >= len(self.data):
             return elseval
         else:
-            return getByte(index)
+            return self.getByte(index)
+
+    def adjOrElse(self, index, elseval):
+        return (getByteOrElse(index - 1, elseval),
+                getByteOrElse(index + 0, elseval),
+                getByteOrElse(index + 1, elseval))
+        
     def color(self, index):
         return self.colorVal(self.getByte(index))
         
@@ -61,7 +67,6 @@ class Weird(ColorMap):
         return ccode.weirdMap(val)
         #return (max((val >> 7) * 255, val >> 4), val, (val & 15)*16)
 
-
 class BitColors(ColorMap):
     def colorVal(self, char):
         green = char &   0b11100000
@@ -82,14 +87,31 @@ class AverageWeird(ColorMap):
         bytes = [self.getByteOrElse(index - 1, 0),
                   self.getByteOrElse(index, 0),
                   self.getByteOrElse(index, 1)]
-        color = self.average(colors)
-
+        color = self.average(bytes)
 
 class Popcount(ColorMap):
     def colorVal(self, val):
-        accum = 0;
+        accum = 0
         for i in range(8):
             mask = 1 << i
             if (val & mask):
                 accum += 1
         return self.grayscale(scale(accum, [0,8]))
+
+class Ascii(ColorMap):
+    def colorVal(self, val):
+        if val < 128:
+            return self.grayscale(255)
+        else:
+            return self.grayscale(0)
+
+class NextDiff(ColorMap):
+    def color(self, index):
+        byte = self.getByte(index)
+        next = self.getByteOrElse(index + 1, None)
+        if next != None:
+            diff = abs(byte - next)
+            return self.grayscale(diff)
+        else:
+            return self.grayscale(0)
+

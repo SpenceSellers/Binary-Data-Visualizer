@@ -31,7 +31,7 @@ def xy2d(n, x, y):
 
         d += s * s * ((3 * rx) ^ ry)
         x, y = rot(s, x, y, rx, ry)
-        
+
         s /= 2
     return d
 
@@ -50,12 +50,12 @@ def main():
     parser.add_option('--mask', type='int', nargs=3)
     parser.add_option('--scale', type='int', dest='scale', default = -1)
     parser.add_option('-m', '--mapping', dest='mapping', default='Weird')
-    
+
     options, args = parser.parse_args()
 
     filename = options.file if options.file else args[0]
     print options.file
-    
+
     file_size = os.path.getsize(filename)
     sizen = None
     data_length = options.len or file_size - options.offset
@@ -74,7 +74,7 @@ def main():
     elif sizen <= 256 and options.scale == -1:
         print "Image is going to be small, setting scale to 3"
         options.scale = 3
-    
+
 
     data_to_be_shown = min(sizen ** 2, data_length)
     print "Showing {0} of {1} bytes, ({2} %)"\
@@ -86,7 +86,7 @@ def main():
     if options.mask:
         data = mask(data, options.mask[0], options.mask[1], options.mask[2])
     mapper = colormaps.__dict__[options.mapping]
-    
+
     print "Done reading"
 
     start_time = time.clock()
@@ -99,6 +99,6 @@ def main():
     if options.scale > 1:
         img = img.resize((sizen * options.scale, sizen * options.scale))
     img.show()
-    
+
 if __name__ == "__main__":
     main()

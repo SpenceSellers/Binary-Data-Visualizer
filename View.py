@@ -23,13 +23,16 @@ class View(object):
         else:
             self.size = nearest_power(len(data))
 
+        #ccode.preload(self.size)
+
         self.default_color = self.mapper.predictDefault()
-        
+
     def get_pos(self, index):
         return ccode.d2xy(self.size, index)
 
     def gen_image(self):
-        img = Image.new("RGB", (self.size, self.size), color=self.default_color)
+        size = (self.size, self.size)
+        img = Image.new("RGB", size, color=self.default_color)
         pixels = list(img.getdata())
         for i in range(len(self.data)):
             if i > self.size**2 - 1:
@@ -38,16 +41,15 @@ class View(object):
 
             if i % 100000 == 0:
                 print "Processed %s bytes (%s)" % (i, i * 1.0 / len(self.data))
-    
+
             color = self.mapper.color(i)
             if color == self.default_color: #Optimize for the default.
                 continue
-            
-            pos = self.get_pos(i)
-            
+
+            #pos = self.get_pos(i)
+            pos = ccode.d2xy(self.size, i)
+
             pixels[pos] =  color
         img.putdata(pixels)
 
         return img
-        
-        
