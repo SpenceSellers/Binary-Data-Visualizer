@@ -35,7 +35,6 @@ int d2xy(int n, int d){
         s <<= 1;
     }
     return y * n + x;
-
 }
 
 int *preloaded;
@@ -44,7 +43,7 @@ static PyObject *py_hilbert_preload(PyObject* self, PyObject* args){
     int size;
     PyArg_ParseTuple(args, "i", &size);
 
-    
+
     int number = pow(size, 2);
     preloaded = malloc(sizeof(int) * number);
     int i;
@@ -60,7 +59,7 @@ static PyObject *py_hilbert_preload(PyObject* self, PyObject* args){
 static PyObject* py_d2xy(PyObject* self, PyObject* args){
     int size;
     int index;
-    
+
     PyArg_ParseTuple(args, "ii", &size, &index);
 
     int result = d2xy(size, index);
@@ -69,7 +68,7 @@ static PyObject* py_d2xy(PyObject* self, PyObject* args){
 
 static PyObject* py_get_preloaded(PyObject* self, PyObject* args){
     int index;
-    
+
     PyArg_ParseTuple(args, "i", &index);
 
     int result = preloaded[index];
@@ -83,7 +82,7 @@ static PyObject* py_weirdMap(PyObject* self, PyObject* args){
     unsigned char red = maxChar((val >> 7) * 255, val >> 4);
     unsigned char green = val;
     unsigned char blue = (val & 15) * 16;
-    
+
     PyObject *t = Py_BuildValue("(bbb)", red, green, blue);
 
     return t;
@@ -102,10 +101,22 @@ static PyMethodDef ccode_methods[] = {
     {NULL, NULL}
 };
 
+static struct PyModuleDef ccode_module = {
+    PyModuleDef_HEAD_INIT,
+    "ccode",
+    NULL,
+    -1,
+    ccode_methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
 /*
  * Python calls this to let us initialize our module
  */
-void initccode()
+PyMODINIT_FUNC
+PyInit_ccode(void)
 {
-    (void) Py_InitModule("ccode", ccode_methods);
+    return PyModule_Create(&ccode_module);
 }

@@ -1,6 +1,6 @@
 import operator
 def countBytes(data):
-    
+
     m = {}
     for i in range(0,256):
         m[i] = 0
@@ -21,8 +21,8 @@ def makeFreqMapper(data):
 
     maximum = max([x[1] for x in sortd])
     minimum = min([x[1] for x in sortd])
-    print "Minimum is {}".format(minimum)
-    print "Maximum is {}".format(maximum)
+    print ("Minimum is {}".format(minimum))
+    print ("Maximum is {}".format(maximum))
     dest_range = (0.0,255.0)
     src_range = (minimum * 1.0, maximum * 1.0)
 
@@ -33,5 +33,3 @@ def makeFreqMapper(data):
         return (val, val, val)
 
     return mapper
-
-    

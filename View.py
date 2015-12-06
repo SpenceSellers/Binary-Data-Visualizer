@@ -1,4 +1,4 @@
-import Image
+from PIL import Image
 import functools
 import ccode
 
@@ -36,11 +36,11 @@ class View(object):
         pixels = list(img.getdata())
         for i in range(len(self.data)):
             if i > self.size**2 - 1:
-                print "Not all data has been displayed."
+                print ("Not all data has been displayed.")
                 break
 
             if i % 100000 == 0:
-                print "Processed %s bytes (%s)" % (i, i * 1.0 / len(self.data))
+                print ("Processed %s bytes (%s)" % (i, i * 1.0 / len(self.data)))
 
             color = self.mapper.color(i)
             if color == self.default_color: #Optimize for the default.

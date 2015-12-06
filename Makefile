@@ -1,2 +1,2 @@
 ccode.so: ccode.c
-	gcc -shared -I/usr/include/python2.7 -lpython2.7 -o ccode.so ccode.c -fPIC
+	gcc -shared -I/usr/include/python3.5m -lpython3 -o ccode.so ccode.c -fPIC

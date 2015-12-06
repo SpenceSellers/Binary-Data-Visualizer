@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-import Image
-import ImageFilter
+from PIL import Image
+from PIL import ImageFilter
 import numpy
 import os
 import time
@@ -54,48 +54,48 @@ def main():
     options, args = parser.parse_args()
 
     filename = options.file if options.file else args[0]
-    print options.file
+    print(options.file)
 
     file_size = os.path.getsize(filename)
     sizen = None
     data_length = options.len or file_size - options.offset
     if options.size <= 0:
         sizen = nearest_power(math.sqrt(data_length))
-        print "Setting image size to %s" % sizen
+        print("Setting image size to %s" % sizen)
         if sizen > 4048:
-            print "Size too large, forcing size to be 2048"
+            print("Size too large, forcing size to be 2048")
             sizen = 2048
     else:
         sizen = options.size
 
     if sizen <= 64 and options.scale == -1:
-        print "Image is going to be very small, setting scale to 8"
+        print ("Image is going to be very small, setting scale to 8")
         options.scale = 8
     elif sizen <= 256 and options.scale == -1:
-        print "Image is going to be small, setting scale to 3"
+        print ("Image is going to be small, setting scale to 3")
         options.scale = 3
 
 
     data_to_be_shown = min(sizen ** 2, data_length)
-    print "Showing {0} of {1} bytes, ({2} %)"\
-        .format(data_to_be_shown, data_length, (data_to_be_shown * 100.0/data_length))
+    print ("Showing {0} of {1} bytes, ({2} %)"\
+        .format(data_to_be_shown, data_length, (data_to_be_shown * 100.0/data_length)))
 
-    f = open(filename, 'r')
+    f = open(filename, 'rb')
     f.seek(options.offset)
     data = bytearray(f.read(options.len or sizen**2))
     if options.mask:
         data = mask(data, options.mask[0], options.mask[1], options.mask[2])
     mapper = colormaps.__dict__[options.mapping]
 
-    print "Done reading"
+    print ("Done reading")
 
     start_time = time.clock()
     img = View.View(data, mapper, size = sizen).gen_image()
     stop_time = time.clock()
 
-    print "Time {}".format(stop_time-start_time)
+    print ("Time {}".format(stop_time-start_time))
 
-    print "Showing"
+    print ("Showing")
     if options.scale > 1:
         img = img.resize((sizen * options.scale, sizen * options.scale))
     img.show()
